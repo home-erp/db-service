@@ -1,0 +1,7 @@
+version: "2.1"
+
+services:
+  postgres:
+    image: home-erp/database
+    ports:
+      - "${PORT}:5432"
