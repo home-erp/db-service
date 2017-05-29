@@ -26,18 +26,11 @@ func main() {
 	var dbPwd = flag.String("db-pwd", "ohoch3", "the password of the database")
 	var dbName = flag.String("db-name", "home_erp", "the name of the database")
 	var dbPort = flag.Int("db-port", 5432, "the port of the database")
-	var etcdHost = flag.String("etcd-host", "", "location of etcd")
 	var token = flag.String("token", defaultToken, "the token that authorizes clients.")
 	flag.Parse()
 
 	fmt.Println(*token)
 	fmt.Println(*port)
-
-	noRegister := false
-	if *etcdHost == "" {
-		noRegister = true
-		log.Println("WARNING: no etcdHost set. No registration at etcd will be performed.")
-	}
 
 	if *token == defaultToken {
 		fmt.Printf("No token provided. Generated the following token: %s", defaultToken)
@@ -62,20 +55,9 @@ func main() {
 	r.HandleFunc("/database-accounts/{accountName}", getAccountsHandler).Methods("GET")
 	r.Handle("/health", BuildHealthHandler(db)).Methods("GET")
 
-	if !noRegister {
-		err = RegisterService("db-service", *etcdHost)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
 	portString := fmt.Sprintf(":%d", *port)
 	log.Printf("listening on %s", portString)
 	log.Fatal(http.ListenAndServe(portString, r))
-}
-
-//TODO implement
-func RegisterService(serviceName, etcdHost string) error {
-	return nil
 }
 
 func PingDatabase(dbInfo string, maxRetries int) error {
